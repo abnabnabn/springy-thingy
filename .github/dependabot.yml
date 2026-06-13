@@ -1,0 +1,32 @@
+# Dependabot configuration file to keep npm packages, Terraform providers, and GitHub Actions up-to-date.
+# Reference: https://docs.github.com/github/administering-a-repository/configuration-options-for-dependency-updates
+version: 2
+updates:
+  # 1. Track Node.js / npm packages in the root directory
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "Europe/London"
+    # Keep pull request count manageable
+    open-pull-requests-limit: 5
+  # 2. Track Terraform providers and modules in the /terraform directory
+#  - package-ecosystem: "terraform"
+#    directory: "/terraform"
+#    schedule:
+#      interval: "weekly"
+#      day: "monday"
+#      time: "09:30"
+#      timezone: "Europe/London"
+#    open-pull-requests-limit: 3
+  # 3. Track GitHub Actions workflows (runs if you add .github/workflows/ later)
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "10:00"
+      timezone: "Europe/London"
+    open-pull-requests-limit: 3
