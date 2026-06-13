@@ -9,7 +9,7 @@
     "deploy": "npm run build && aws s3 sync dist/ s3://springy.abn.cx --delete"
   },
   "dependencies": {
-    "three": "^0.128.0"
+    "three": "^0.184.0"
   },
   "devDependencies": {
     "vite": "^4.4.5"
