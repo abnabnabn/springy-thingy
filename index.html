@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Springy Thingy</title>
+</head>
+<body>
+    <canvas id="gameCanvas"></canvas>
+
+    <div id="titleScreen">
+        <div class="neon-text glitch" data-text="SPRINGY THINGY">SPRINGY THINGY</div>
+        <div id="scoreBoard">
+            <h2>TOP SCORES</h2>
+            <div id="scoreList"></div>
+        </div>
+        <button class="start-btn" id="startBtn">INITIALIZE</button>
+    </div>
+
+    <div id="hud">
+        <div id="scoreUI">SCORE: 0</div>
+        <div id="levelUI">LEVEL 1</div>
+    </div>
+    
+    <div id="demoOverlay">AUTONOMOUS DEMONSTRATION</div>
+    
+    <div id="messageOverlay">
+        <span id="overlayMsg">LEVEL COMPLETE!</span>
+        <input type="text" id="nameInput" maxlength="3" placeholder="AAA" />
+    </div>
+    
+    <div id="uiLayer">
+        <div class="control-zone">
+            <div class="btn" id="btnLeft">L</div>
+            <div class="btn" id="btnRight">R</div>
+        </div>
+        <div class="control-zone">
+            <div class="btn" id="jumpBtn">JUMP</div>
+        </div>
+    </div>
+
+    <script type="module" src="/src/main.js"></script>
+</body>
+</html>

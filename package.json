@@ -1,0 +1,17 @@
+{
+  "name": "springy-thingy",
+  "version": "1.0.0",
+  "description": "Springy Thingy",
+  "scripts": {
+    "dev": "vite --host",
+    "build": "vite build",
+    "preview": "vite preview --host",
+    "deploy": "npm run build && aws s3 sync dist/ s3://springy.abn.cx --delete"
+  },
+  "dependencies": {
+    "three": "^0.128.0"
+  },
+  "devDependencies": {
+    "vite": "^4.4.5"
+  }
+}
