@@ -1,8 +1,6 @@
 # Secure HTTPS Deployment to AWS S3 & CloudFront
 
-This guide details how to deploy your game, route a custom domain (e.g., `game.yourdomain.com`), and secure it with an SSL certificate using AWS CloudFront, entirely through Terraform Infrastructure as Code (IaC).
-
-By using Terraform, you **do not** need to log into the AWS Console to configure hosting. Terraform handles provisioning the private S3 Bucket, creating a global CloudFront Distribution with Origin Access Control (OAC), and attaching your existing ACM SSL certificate.
+This guide details how to deploy the game, route a custom domain (e.g., `game.yourdomain.com`), and secure it with an SSL certificate using AWS CloudFront, entirely through Terraform Infrastructure as Code (IaC).
 
 ## 1. Prerequisites
 
@@ -18,11 +16,16 @@ Before running the deployment scripts, ensure you have:
 
 ## 2. Infrastructure Configuration
 
-To keep hardcoded values out of the codebase, this project expects deployment configuration to be provided via environment variables.
+### State Management: Remote vs Local Backend
+
+Terraform must store a "state file" to remember what infrastructure it has deployed. This project supports two modes:
+
+1. **Remote S3 Backend (Recommended)**: Stores the state securely in an AWS S3 bucket and uses DynamoDB for state locking to prevent concurrent modifications. This is the industry standard for production environments and team collaboration.
+2. **Local Backend (Testing / Solo Dev)**: Stores the state directly on your laptop in a file called `terraform.tfstate`. This is perfect for a quick, one-off deployment but risks total state loss if your local file is deleted.
 
 ### Required Variables
 
-You must provide the following variables. If you use Tiny Secrets Manager, the required secret keys are also listed below (this mapping is defined in `terraform/tsm.env`):
+To keep hardcoded values out of the codebase, deployment configuration must be provided via environment variables.
 
 **Project Variables:**
 
@@ -32,7 +35,10 @@ You must provide the following variables. If you use Tiny Secrets Manager, the r
 | `TF_VAR_domain_name` | `springy.domain_name` | The custom domain where players will access the game | `game.yourdomain.com` |
 | `TF_VAR_certificate_domain` | `springy.certificate_domain` | The domain used for your ACM SSL certificate | `*.yourdomain.com` |
 
-**Remote Backend Variables (State Management):**
+> [!NOTE]
+> If you are using the **Remote Backend**, you must provide *all* of the variables. If you are using the **Local Backend**, you *only* need to provide the Project Variables project variables above, and can skip the variables below..
+
+**Remote Backend Variables (Ignore if using Local Backend):**
 
 | Environment Variable | TSM Key | Description | Example |
 | :--- | :--- | :--- | :--- |
@@ -44,7 +50,7 @@ You must provide the following variables. If you use Tiny Secrets Manager, the r
 
 ### How to Provide the Variables
 
-You have two options for providing these to Terraform:
+You have two options for injecting these variables into Terraform:
 
 **Option A: Tiny Secrets Manager (Recommended)**
 We highly recommend using [Tiny Secrets Manager (TSM)](https://github.com/abnabnabn/tiny-secrets-manager) to securely manage and inject these. 
@@ -62,20 +68,30 @@ export TF_BACKEND_BUCKET="my-state-bucket"
 
 ### Step 1: Initialize Terraform
 
-Because we inject dynamic backend configuration, you **must** use the provided wrapper script rather than raw Terraform commands.
+Because we inject dynamic backend configuration, you **must** use the provided wrapper script rather than raw Terraform commands. The script will halt and throw an error if you missed any required variables for your chosen backend.
 
+**Option 1: Initialize with a Remote Backend (Recommended)**
 ```bash
 cd terraform
 ./tf.sh init
 ```
-*(If you are missing any required variables, the script will gracefully catch it and let you know!)*
+
+**Option 2: Initialize with a Local Backend**
+You can explicitly bypass the remote backend requirements by passing the `--local-backend` flag. This safely generates a temporary, unversioned `override.tf` file to route state to your local disk.
+```bash
+cd terraform
+./tf.sh --local-backend init
+```
 
 ### Step 2: Apply Infrastructure
 
 Run the apply command via the wrapper script. Terraform will present a summary of the S3 bucket, CloudFront distribution, and policies it will create.
+
 ```bash
 ./tf.sh apply
 ```
+*(Note: You do not need to specify `--local-backend` here. The script automatically remembers if you initialized locally!)*
+
 Type `yes` when prompted. Upon completion, you will see a `game_url` output. **Copy this URL.**
 
 > [!WARNING]
@@ -111,4 +127,4 @@ Log into your DNS provider and create a **CNAME** record:
 
 ## 5. Play!
 
-Open your custom domain URL (e.g., `https://game.yourdomain.com`) in your browser. Once your DNS provider propagates the new CNAME record globally, your game is live!
+Open your custom domain URL (e.g., `https://game.yourdomain.com`) in your browser. Once your DNS provider propagates the new CNAME record globally, the game is live!
