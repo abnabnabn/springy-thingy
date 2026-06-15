@@ -28,9 +28,6 @@ override.tf.json
 *_override.tf.json
 .terraformrc
 terraform.rc
-# not sharing the terraform just yet
-terraform/
-AWS_DEPLOYMENT.md
 
 # OS Generated Files
 .DS_Store

@@ -6,7 +6,7 @@
     "dev": "vite --host",
     "build": "vite build",
     "preview": "vite preview --host",
-    "deploy": "npm run build && aws s3 sync dist/ s3://springy.abn.cx --delete"
+    "deploy": "bash scripts/deploy.sh"
   },
   "dependencies": {
     "three": "^0.184.0"

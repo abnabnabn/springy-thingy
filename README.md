@@ -1,6 +1,6 @@
 # Springy Thingy
 
-A modern, web-based 3D platformer built with [Three.js](https://threejs.org/) and vanilla JavaScript. 
+A modern, web-based 2.5D platformer built with [Three.js](https://threejs.org/) and vanilla JavaScript. 
 
 Loosely inspired by the 1980s computer game Thing on a Spring, but it's more of a standard platformer with a spring loaded jump mechanism.
 
@@ -34,6 +34,7 @@ The codebase is organized into several key modules:
 │   ├── cache.js          # Reusable geometries and materials to save memory
 │   └── style.css         # UI styles and neon effects
 ├── index.html            # Main HTML wrapper
+├── terraform/            # AWS Infrastructure as Code and deployment scripts
 ├── package.json          # Project metadata and scripts
 └── vite.config.js        # Vite configuration (handles chunking for Three.js)
 ```
@@ -82,6 +83,8 @@ To preview the production build locally before deploying:
 npm run preview
 ```
 
+For fully automated deployment to AWS via Terraform and [Tiny Secrets Manager](https://github.com/abnabnabn/tiny-secrets-manager), see the [AWS Deployment Guide](AWS_DEPLOYMENT.md).
+
 ## Controls
 
 - **Left / Right Arrow Keys**: Move the player
@@ -91,3 +94,4 @@ npm run preview
 ## Acknowledgments
 - Built with [Three.js](https://threejs.org/)
 - Bundled with [Vite](https://vitejs.dev/)
+- Deployment secrets managed via [Tiny Secrets Manager](https://github.com/abnabnabn/tiny-secrets-manager)
