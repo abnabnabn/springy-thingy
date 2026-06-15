@@ -34,8 +34,8 @@ data "aws_acm_certificate" "cert" {
 
 # CloudFront Origin Access Control
 resource "aws_cloudfront_origin_access_control" "oac" {
-  name                              = "springy-game-oac"
-  description                       = "OAC for Springy Thingy Game Bucket"
+  name                              = "${var.app_name}-oac"
+  description                       = "OAC for ${var.app_name} Bucket"
   origin_access_control_origin_type = "s3"
   signing_behavior                  = "always"
   signing_protocol                  = "sigv4"

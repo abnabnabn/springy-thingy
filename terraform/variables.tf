@@ -9,6 +9,11 @@ variable "domain_name" {
 }
 
 variable "certificate_domain" {
-  description = "The domain name for the ACM certificate (e.g., *.abn.cx)"
+  description = "The domain of the ACM TLS certificate to attach to CloudFront (must be in us-east-1)"
+  type        = string
+}
+
+variable "app_name" {
+  description = "The short name of the application (e.g., springy)"
   type        = string
 }

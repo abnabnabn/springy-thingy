@@ -24,4 +24,16 @@ if [ -z "$TARGET_DOMAIN" ]; then
   exit 1
 fi
 
+echo "Syncing files to s3://${TARGET_DOMAIN}..."
 aws s3 sync dist/ "s3://${TARGET_DOMAIN}" --delete
+
+echo "Invalidating CloudFront cache..."
+# Use AWS CLI to find the Distribution ID that matches the target domain
+DIST_ID=$(aws cloudfront list-distributions --query "DistributionList.Items[?Aliases.Items!=null] | [?contains(Aliases.Items, '${TARGET_DOMAIN}')].Id | [0]" --output text 2>/dev/null || echo "")
+
+if [ "$DIST_ID" != "None" ] && [ -n "$DIST_ID" ]; then
+  aws cloudfront create-invalidation --distribution-id "$DIST_ID" --paths "/*"
+  echo "Invalidation triggered successfully for Distribution $DIST_ID."
+else
+  echo "Warning: Could not automatically determine CloudFront Distribution ID for ${TARGET_DOMAIN}. Cache invalidation skipped."
+fi

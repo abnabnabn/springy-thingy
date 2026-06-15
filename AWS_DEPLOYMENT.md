@@ -13,6 +13,9 @@ Before running the deployment scripts, ensure you have:
     ```
 - **Terraform**: Installed locally.
 - **Node.js**: Installed locally to build the game assets.
+- **ACM SSL Certificate**: You **must** have an existing, issued SSL/TLS certificate in AWS Certificate Manager (ACM) matching your `TF_VAR_certificate_domain` (e.g., `*.yourdomain.com`).
+  > [!IMPORTANT]
+  > Because CloudFront is a global service, this certificate **must** be created in the `us-east-1` (N. Virginia) region, regardless of where your S3 bucket lives. Terraform will look up this existing certificate during deployment; it does not create it for you.
 
 ## 2. Infrastructure Configuration
 
@@ -31,6 +34,7 @@ To keep hardcoded values out of the codebase, deployment configuration must be p
 
 | Environment Variable | TSM Key | Description | Example |
 | :--- | :--- | :--- | :--- |
+| `TF_VAR_app_name` | `springy.appname` | The short name of your application | `game` |
 | `TF_VAR_aws_region` | `springy.aws_region` | The AWS region where your new game S3 bucket will live | `us-east-1` |
 | `TF_VAR_domain_name` | `springy.domain_name` | The custom domain where players will access the game | `game.yourdomain.com` |
 | `TF_VAR_certificate_domain` | `springy.certificate_domain` | The domain used for your ACM SSL certificate | `*.yourdomain.com` |
