@@ -1,8 +1,8 @@
 import { state } from './state.js';
 import { executeJump } from './player.js';
 import { returnToTitle, submitScore } from './ui.js';
-import { TILE_SIZE } from './constants.js';
-import { checkAABB } from './level.js';
+import { TILE_SIZE, levels } from './constants.js';
+import { checkAABB, loadLevel } from './level.js';
 
 // We need a way to trigger game start and demo from main.js, so we export a function or hook
 let onStartGame, onStartDemo, onTriggerAppInterrupt;
@@ -15,6 +15,22 @@ export function setInputCallbacks(startGameCb, startDemoCb, triggerAppInterruptC
 
 export function setupInput() {
     document.getElementById('startBtn').addEventListener('click', (e) => { e.stopPropagation(); onStartGame(); });
+
+    if (import.meta.env.DEV) {
+        window.addEventListener('keydown', (e) => {
+            const num = parseInt(e.key, 10);
+            if (!isNaN(num) && e.code.startsWith('Digit')) {
+                let lvl = num === 0 ? 10 : num;
+                if (lvl <= levels.length) {
+                    if (state.appState !== 'PLAYING') {
+                        onStartGame();
+                    }
+                    state.currentLevelIdx = lvl - 1;
+                    loadLevel(state.currentLevelIdx);
+                }
+            }
+        });
+    }
     
     window.addEventListener('keydown', (e) => {
         if (e.code === 'Space' && state.appState === 'TITLE') {
