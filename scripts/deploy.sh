@@ -13,7 +13,7 @@ if command -v tsm >/dev/null 2>&1; then
   echo "Fetching domain name securely from TSM..."
   # Use || true so set -e doesn't instantly crash the script if the secret is missing, 
   # allowing our custom error check below to handle it gracefully.
-  TARGET_DOMAIN=$(tsm get springy.domain_name || true)
+  TARGET_DOMAIN=$(tsm get springy.terraform.domain_name || true)
 else
   echo "TSM not found, relying on native environment variables..."
   TARGET_DOMAIN="$TF_VAR_domain_name"
