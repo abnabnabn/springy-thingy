@@ -122,6 +122,10 @@ function updatePlayerPhysics(dt) {
     }
     state.player.y = nextY;
 
+    if (state.player.isGrounded && state.input.jump && !state.player.isCharging) {
+        state.player.isCharging = true;
+    }
+
     let nextX = state.player.x + state.player.vx * dt;
     let aabbX = { x: nextX - state.player.width/2, y: state.player.y + 0.1, w: state.player.width, h: state.player.height - 0.2 };
     
