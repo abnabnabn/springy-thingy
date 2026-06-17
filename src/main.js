@@ -221,6 +221,40 @@ function updateDynamicEntities(dt) {
         if (checkAABB(pAABB, {x: e.x, y: e.y, w: e.w, h: e.h})) triggerDeath();
     }
 
+    if (state.flyingEnemies) {
+        for(let e of state.flyingEnemies) {
+            if (!e.active) continue;
+            
+            const dx = e.endX - e.startX;
+            const dy = e.endY - e.startY;
+            const dist = Math.hypot(dx, dy);
+            const speed = MOVE_SPEED * 0.5;
+            
+            if (dist > 0) {
+                e.progress += (speed / dist) * dt * e.direction;
+                if (e.progress >= 1) {
+                    e.progress = 1;
+                    e.direction = -1;
+                } else if (e.progress <= 0) {
+                    e.progress = 0;
+                    e.direction = 1;
+                }
+                e.x = e.startX + dx * e.progress;
+                e.y = e.startY + dy * e.progress;
+                
+                e.mesh.position.set(e.x, e.y, 0);
+                
+                const currentDx = e.direction === 1 ? dx : -dx;
+                const currentDy = e.direction === 1 ? dy : -dy;
+                const angle = Math.atan2(currentDy, currentDx);
+                e.mesh.rotation.set(0, 0, angle - Math.PI / 2);
+            }
+            
+            const eAABB = { x: e.x - e.w/2, y: e.y - e.h/2, w: e.w, h: e.h };
+            if (checkAABB(pAABB, eAABB)) triggerDeath();
+        }
+    }
+
     for(let b of state.blocks) {
         if (b.type === 'dissolve' && b.active && b.life < 1.0) {
             b.life -= dt * 1.5;

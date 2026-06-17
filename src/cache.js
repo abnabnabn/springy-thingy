@@ -27,12 +27,26 @@ function createConveyorTex(isLeft) {
     return tex;
 }
 
+function createVShapeGeo() {
+    const shape = new THREE.Shape();
+    shape.moveTo(0, 0.6);
+    shape.lineTo(-0.6, -0.6);
+    shape.lineTo(0, -0.2);
+    shape.lineTo(0.6, -0.6);
+    shape.lineTo(0, 0.6);
+    const extrudeSettings = { depth: 0.3, bevelEnabled: true, bevelSegments: 2, steps: 1, bevelSize: 0.05, bevelThickness: 0.05 };
+    const geo = new THREE.ExtrudeGeometry(shape, extrudeSettings);
+    geo.center();
+    return geo;
+}
+
 export const cache = {
     geo: {
         block: new THREE.BoxGeometry(TILE_SIZE, TILE_SIZE, TILE_SIZE * 2),
         goal: new THREE.BoxGeometry(TILE_SIZE, TILE_SIZE, TILE_SIZE),
         collectible: new THREE.TorusGeometry(0.6, 0.2, 8, 16),
         enemy: new THREE.IcosahedronGeometry(0.8, 0),
+        flyingEnemy: createVShapeGeo(),
         particle: new THREE.BoxGeometry(0.3, 0.3, 0.3)
     },
     mat: {
@@ -42,6 +56,7 @@ export const cache = {
         goal: new THREE.MeshLambertMaterial({ color: 0xff00ff, emissive: 0xaa00aa }),
         collectible: new THREE.MeshPhongMaterial({ color: 0xffff00, emissive: 0x888800, shininess: 100 }),
         enemy: new THREE.MeshPhongMaterial({ color: 0xff0044, emissive: 0x880022, flatShading: true }),
+        flyingEnemy: new THREE.MeshPhongMaterial({ color: 0xffaa00, emissive: 0x884400, flatShading: true }),
         particle: new THREE.MeshBasicMaterial({ color: 0x00ffff }),
         conveyorL: new THREE.MeshLambertMaterial({ color: 0xffffff, map: createConveyorTex(true), emissive: 0x331100 }),
         conveyorR: new THREE.MeshLambertMaterial({ color: 0xffffff, map: createConveyorTex(false), emissive: 0x001133 })

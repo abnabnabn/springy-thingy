@@ -9,9 +9,11 @@ export function clearLevel() {
     state.blocks.forEach(b => scene.remove(b.mesh));
     state.collectibles.forEach(c => scene.remove(c.mesh));
     state.enemies.forEach(e => scene.remove(e.mesh));
+    if (state.flyingEnemies) state.flyingEnemies.forEach(e => scene.remove(e.mesh));
     state.blocks = [];
     state.collectibles = [];
     state.enemies = [];
+    state.flyingEnemies = [];
     if (state.goalBox) {
         scene.remove(state.goalBox.mesh);
         state.goalBox = null;
@@ -26,6 +28,9 @@ export function loadLevel(idx) {
     const levelMap = levels[idx];
     const rows = levelMap.length;
     const cols = levelMap[0].length;
+
+    const flyingStarts = {};
+    const flyingEnds = {};
 
     for (let r = 0; r < rows; r++) {
         for (let c = 0; c < cols; c++) {
@@ -64,7 +69,33 @@ export function loadLevel(idx) {
                 mesh.position.set(xPos, yPos + 0.2, 0);
                 scene.add(mesh);
                 state.enemies.push({ x: xPos - TILE_SIZE/2, y: yPos - TILE_SIZE/2, w: TILE_SIZE, h: TILE_SIZE, mesh: mesh, vx: MOVE_SPEED * 0.5, active: true });
+            } else if (char >= 'A' && char <= 'Z' && !['S', 'C', 'E', 'X', 'D', 'G'].includes(char)) {
+                flyingStarts[char] = { x: xPos, y: yPos };
+            } else if (char >= 'a' && char <= 'z') {
+                flyingEnds[char] = { x: xPos, y: yPos };
             }
+        }
+    }
+
+    for (const key in flyingStarts) {
+        const lowerKey = key.toLowerCase();
+        if (flyingEnds[lowerKey]) {
+            const start = flyingStarts[key];
+            const end = flyingEnds[lowerKey];
+            const mesh = new THREE.Mesh(cache.geo.flyingEnemy, cache.mat.flyingEnemy);
+            mesh.rotation.x = Math.PI / 2; // Point it sideways initially
+            mesh.position.set(start.x, start.y, 0);
+            scene.add(mesh);
+            state.flyingEnemies.push({
+                x: start.x, y: start.y,
+                startX: start.x, startY: start.y,
+                endX: end.x, endY: end.y,
+                w: TILE_SIZE * 0.8, h: TILE_SIZE * 0.8,
+                mesh: mesh,
+                progress: 0,
+                direction: 1,
+                active: true
+            });
         }
     }
     state.player.state = 'idle';

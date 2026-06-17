@@ -2,6 +2,7 @@ export const state = {
     blocks: [],
     collectibles: [],
     enemies: [],
+    flyingEnemies: [],
     goalBox: null,
     currentLevelIdx: 0,
     score: 0,
