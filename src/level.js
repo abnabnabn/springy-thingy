@@ -63,6 +63,9 @@ export function loadLevel(idx) {
         }
     }
     state.player.state = 'idle';
+    state.input.left = false;
+    state.input.right = false;
+    state.input.jump = false;
 }
 
 export function checkAABB(a, b) { 

@@ -31,15 +31,17 @@ export function triggerGameOver(won) {
     
     msg.innerText = won ? "SYSTEM CONQUERED!" : "SYSTEM FAILURE";
     
+    overlay.style.display = 'flex';
+    
     if (state.score > (state.highScores[4]?.s || 0)) {
         input.style.display = 'block';
         input.value = '';
-        input.focus();
+        // Small timeout to ensure the browser has rendered the display change before focusing
+        setTimeout(() => input.focus(), 10);
     } else {
         input.style.display = 'none';
         setTimeout(returnToTitle, 3000);
     }
-    overlay.style.display = 'flex';
 }
 
 export function submitScore() {

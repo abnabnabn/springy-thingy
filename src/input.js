@@ -16,7 +16,14 @@ export function setInputCallbacks(startGameCb, startDemoCb, triggerAppInterruptC
 export function setupInput() {
     document.getElementById('startBtn').addEventListener('click', (e) => { e.stopPropagation(); onStartGame(); });
     
-    window.addEventListener('keydown', () => onTriggerAppInterrupt());
+    window.addEventListener('keydown', (e) => {
+        if (e.code === 'Space' && state.appState === 'TITLE') {
+            e.stopImmediatePropagation();
+            onStartGame();
+            return;
+        }
+        onTriggerAppInterrupt();
+    });
     window.addEventListener('touchstart', () => onTriggerAppInterrupt());
     window.addEventListener('mousedown', () => onTriggerAppInterrupt());
     window.addEventListener('mousemove', () => state.idleTimestamp = Date.now());
@@ -28,28 +35,35 @@ export function setupInput() {
     const btnR = document.getElementById('btnRight');
     const btnJ = document.getElementById('jumpBtn');
 
-    const bindTouch = (el, key, val) => {
-        el.addEventListener('touchstart', (e) => { 
+    const bindInput = (el, key, val) => {
+        const startAction = (e) => {
             e.preventDefault(); 
             if(state.appState !== 'PLAYING') return; 
             state.input[key] = val; 
             if(key==='jump' && state.player.isGrounded) state.player.isCharging = true; 
-        });
-        el.addEventListener('touchend', (e) => { 
+        };
+        const endAction = (e) => {
             e.preventDefault(); 
             if(state.appState !== 'PLAYING') return; 
             state.input[key] = !val; 
             if(key==='jump') executeJump(); 
+        };
+        el.addEventListener('touchstart', startAction);
+        el.addEventListener('mousedown', startAction);
+        el.addEventListener('touchend', endAction);
+        el.addEventListener('mouseup', endAction);
+        el.addEventListener('mouseleave', (e) => {
+            if(state.input[key] === val) endAction(e);
         });
     };
-    bindTouch(btnL, 'left', true); 
-    bindTouch(btnR, 'right', true); 
-    bindTouch(btnJ, 'jump', true);
+    bindInput(btnL, 'left', true); 
+    bindInput(btnR, 'right', true); 
+    bindInput(btnJ, 'jump', true);
 
     window.addEventListener('keydown', (e) => {
         if (state.appState !== 'PLAYING') return;
-        if (e.code === 'ArrowLeft') state.input.left = true;
-        if (e.code === 'ArrowRight') state.input.right = true;
+        if (e.code === 'ArrowLeft' || e.key === 'a' || e.key === 'A') state.input.left = true;
+        if (e.code === 'ArrowRight' || e.key === 'd' || e.key === 'D') state.input.right = true;
         if (e.code === 'Space' && !state.input.jump) { 
             state.input.jump = true; 
             if (state.player.isGrounded) state.player.isCharging = true; 
@@ -57,11 +71,11 @@ export function setupInput() {
     });
     window.addEventListener('keyup', (e) => {
         if (state.appState !== 'PLAYING') return;
-        if (e.code === 'ArrowLeft') state.input.left = false;
-        if (e.code === 'ArrowRight') state.input.right = false;
+        if (e.code === 'ArrowLeft' || e.key === 'a' || e.key === 'A') state.input.left = false;
+        if (e.code === 'ArrowRight' || e.key === 'd' || e.key === 'D') state.input.right = false;
         if (e.code === 'Space') { 
+            if (state.input.jump) executeJump();
             state.input.jump = false; 
-            executeJump(); 
         }
     });
 }
