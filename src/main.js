@@ -7,6 +7,7 @@ import { setupInput, setInputCallbacks, updateDemoAI } from './input.js';
 import { loadLevel, checkAABB } from './level.js';
 import { renderHighScoreTable, updateScore, triggerGameOver, returnToTitle } from './ui.js';
 import { getPlayerAABB } from './player.js';
+import { cache } from './cache.js';
 
 let clock;
 
@@ -106,6 +107,7 @@ function updatePlayerPhysics(dt) {
     let aabbY = { x: state.player.x - state.player.width/2, y: nextY, w: state.player.width, h: state.player.height };
     
     state.player.isGrounded = false;
+    let groundedBlock = null;
     for (let b of state.blocks) {
         if (!b.active) continue;
         if (checkAABB(aabbY, b)) {
@@ -113,6 +115,7 @@ function updatePlayerPhysics(dt) {
                 nextY = b.y + b.h;
                 state.player.vy = 0;
                 state.player.isGrounded = true;
+                groundedBlock = b;
                 if(b.type === 'dissolve' && b.life === 1.0) b.life = 0.99;
             } else if (state.player.vy > 0) {
                 nextY = b.y - state.player.height;
@@ -126,14 +129,20 @@ function updatePlayerPhysics(dt) {
         state.player.isCharging = true;
     }
 
-    let nextX = state.player.x + state.player.vx * dt;
+    let conveyorVx = 0;
+    if (state.player.isGrounded && groundedBlock) {
+        if (groundedBlock.type === 'conveyor_left') conveyorVx = -MOVE_SPEED * 0.75;
+        else if (groundedBlock.type === 'conveyor_right') conveyorVx = MOVE_SPEED * 0.75;
+    }
+
+    let nextX = state.player.x + (state.player.vx + conveyorVx) * dt;
     let aabbX = { x: nextX - state.player.width/2, y: state.player.y + 0.1, w: state.player.width, h: state.player.height - 0.2 };
     
     for (let b of state.blocks) {
         if (!b.active) continue;
         if (checkAABB(aabbX, b)) {
-            if (state.player.vx > 0) nextX = b.x - state.player.width/2;
-            else if (state.player.vx < 0) nextX = b.x + b.w + state.player.width/2;
+            if (state.player.vx + conveyorVx > 0) nextX = b.x - state.player.width/2;
+            else if (state.player.vx + conveyorVx < 0) nextX = b.x + b.w + state.player.width/2;
             state.player.vx = 0;
         }
     }
@@ -170,6 +179,9 @@ function updatePlayerPhysics(dt) {
 
 function updateDynamicEntities(dt) {
     const pAABB = getPlayerAABB();
+
+    cache.mat.conveyorL.map.offset.x += dt * 2.0;
+    cache.mat.conveyorR.map.offset.x -= dt * 2.0;
 
     for(let c of state.collectibles) {
         if (!c.active) continue;

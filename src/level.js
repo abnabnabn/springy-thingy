@@ -35,13 +35,18 @@ export function loadLevel(idx) {
             const xPos = c * TILE_SIZE;
             const yPos = (rows - r - 1) * TILE_SIZE;
 
-            if (char === 'X' || char === 'D') {
-                let isTop = (r === 0 || (levelMap[r-1][c] !== 'X' && levelMap[r-1][c] !== 'D'));
-                let mat = char === 'D' ? cache.mat.dissolve : (isTop ? cache.mat.grass : cache.mat.block);
+            if (char === 'X' || char === 'D' || char === '<' || char === '>') {
+                let isTop = (r === 0 || !['X', 'D', '<', '>'].includes(levelMap[r-1][c]));
+                let mat, type;
+                if (char === 'D') { mat = cache.mat.dissolve; type = 'dissolve'; }
+                else if (char === '<') { mat = cache.mat.conveyorL; type = 'conveyor_left'; }
+                else if (char === '>') { mat = cache.mat.conveyorR; type = 'conveyor_right'; }
+                else { mat = isTop ? cache.mat.grass : cache.mat.block; type = 'solid'; }
+                
                 const mesh = new THREE.Mesh(cache.geo.block, mat.clone());
                 mesh.position.set(xPos, yPos, 0);
                 scene.add(mesh);
-                state.blocks.push({ x: xPos - TILE_SIZE/2, y: yPos - TILE_SIZE/2, w: TILE_SIZE, h: TILE_SIZE, mesh: mesh, type: char === 'D' ? 'dissolve' : 'solid', active: true, life: 1.0 });
+                state.blocks.push({ x: xPos - TILE_SIZE/2, y: yPos - TILE_SIZE/2, w: TILE_SIZE, h: TILE_SIZE, mesh: mesh, type: type, active: true, life: 1.0 });
             } else if (char === 'S') {
                 spawnPlayer(xPos, yPos);
             } else if (char === 'G') {
